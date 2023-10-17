@@ -27,9 +27,7 @@ class StepperMotor:
         # Check if the step frequency is valid
         if (step_freq > 0) and (step_freq < 1500):
             self.__delay_after_step = 1 / step_freq
-            print(f"Set stepper delay to {1 / step_freq} seconds / {step_freq} Hz.")
-        else:
-            print("Invalid frequency. Please choose a number between 1 and 1499.")
+        print(f"Set stepper delay to {1 / step_freq} seconds / {step_freq} Hz.")
 
     # Function to do a step forward
     def do_clockwise_step(self, amount):

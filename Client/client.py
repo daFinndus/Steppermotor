@@ -1,0 +1,124 @@
+import time
+import socket
+from socket import *
+from threading import Thread
+
+# Dictionary of help commands
+help_dict = {
+    "debug": "Print a debug message.",
+    "help": "Display the help menu.",
+    "start": "Start the pigpio daemon.",
+    "stop": "Stop the pigpio daemon.",
+    "disable": "Disable the steppermotor.",
+    "set": "Set the step delay in Hz.",
+    "cw-step": "Step clockwise.",
+    "ccw-step": "Step counterclockwise.",
+    "exit": "Exit the socket connection.",
+}
+
+
+class MyClient:
+    server_port = 50000  # Port for the server
+    bufsize = 1024  # Set maximum bufsize
+    host = input("Enter Server-IP Address: ").replace(" ", "")  # Set IP of host
+    name = input("Set name: ").capitalize().replace(" ", "")  # Set up a custom name
+
+    def __init__(self):
+
+        self.data_recv = None  # Storage for received messages
+        self.data_send = None  # Storage for sent messages
+
+        self.socket_connection = socket(AF_INET, SOCK_STREAM)  # Create IpV4-TCP/IP-socket
+
+        self.thread_recv = Thread(target=self.worker_recv)  # Setup thread for receiving messages
+        self.thread_send = Thread(target=self.worker_send)  # Setup thread for sending messages
+
+        self.socket_connection.connect((self.host, self.server_port))  # Connect to the server via IP and port
+
+        print(f"Connected to Server: '{self.host}'.")
+
+        self.exit = False  # Initiate boolean to end it all
+
+        self.thread_recv.start()  # Start thread to receive messages
+        self.thread_send.start()  # Start thread to send messages
+
+    # Function to receive messages
+    def worker_recv(self):
+        while not self.exit:
+            try:
+                self.data_recv = self.socket_connection.recv(self.bufsize)
+                if self.data_recv:
+                    print(self.data_recv)
+            except Exception as e:  # Catch error and print
+                print(f"Error in receiving message: {e}")
+
+    # Function to send messages
+    def worker_send(self):
+        while not self.exit:
+            try:
+                # Setup sendable data for the server which displays information about the client cpu frequency
+                self.data_send = self.prepare_message()  # Send custom text message to server
+
+                # Format the data to a nice string
+                self.data_send = f"{self.data_send}"
+
+                # Send the server the data_send string
+                self.socket_connection.send(self.data_send.encode())
+
+                # Sleep for a second
+                time.sleep(1)
+            except Exception as e:  # Catch error and print
+                print(f"Error occurred in sending message: {e}")
+
+    # Function to formulate a registered message
+    def prepare_message(self):
+        message = input("> ").lower()
+        # Display the help menu
+        if message == "help":
+            for help_entry, help_desc in help_dict.items():
+                print(f"{help_entry}: {help_desc}")
+        elif message == "debug":
+            print("Gonna debug right now...")
+            time.sleep(1)
+        # Start the pigpio daemon
+        elif message == "start":
+            print("The pigpio daemon is starting.")
+        # Stop the pigpio daemon
+        elif message == "stop":
+            print("The pigpio daemon is stopping.")
+        # Disable the steppermotor
+        elif message == "disable":
+            message = f"disable steppins"
+            print("The steppermotor will shutdown.")
+        # Set the step delay in Hz
+        elif message == "set":
+            step_freq = input("Choose the frequency value > ")
+            message = f"set {step_freq}"
+            print(f"Setting up delay_after_step to {step_freq} Hz.")
+        # Step clockwise
+        elif message == "cw-step":
+            step_amount = input("Choose how many steps the motor should make > ")
+            message = f"cw-step {step_amount}"
+        # Step counterclockwise
+        elif message == "ccw-step":
+            step_amount = input("Choose how many steps the motor should make > ")
+            message = f"ccw-step {step_amount}"
+        # Exit the socket connection
+        elif message == "exit":
+            self.stop_connection()
+            time.sleep(1)
+            print("\nGonna exit the socket connection real quick...\n")
+        else:
+            print("Your message isn't registered in our dictionary. Type 'help' for help.")
+            self.prepare_message()
+
+        return message
+
+    # Function to stop the connection
+    def stop_connection(self):
+        self.exit = True  # Stop everything that depends on exit
+        self.thread_recv.join()  # Stop thread after function is executed completely
+        self.thread_send.join()  # Stop thread after function is executed completely
+        self.socket_connection.shutdown(socket.SHUT_RDWR)  # Shutdown the socket
+        self.socket_connection.close()  # Close socket
+        print("Executing stop_connection() is done.")  # Debug
