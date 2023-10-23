@@ -19,6 +19,8 @@ _help_dict = {
 
 
 class MyClient:
+    self.lock = threading.Lock()
+
     def __init__(self):
         self.__SERVER_PORT = 50000  # Port for the server
         self.__BUFSIZE = 1024  # Set maximum bufsize
@@ -113,7 +115,8 @@ class MyClient:
 
     # Function to shutdown the application
     def shutdown(self):
-        self.stop_connection()
-        print("Shutting down...")
-        time.sleep(3)
-        exit()
+        with self.lock:
+            self.stop_connection()
+            print("Shutting down...")
+            time.sleep(3)
+            exit()
