@@ -29,7 +29,9 @@ class StepperMotor:
             self.__delay_after_step = 1 / step_freq
             print(f"Set stepper delay to {1 / step_freq} seconds / {step_freq} Hz.")
             self.disable_stepper_motor(self.pins)
+            stop_pigpiod()
             start_pigpiod()
+            self.pi = pigpio.pi()
         else:
             print("Invalid frequency. Please choose a number between 1 and 1499.")
 
