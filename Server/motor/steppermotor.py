@@ -35,7 +35,7 @@ class StepperMotor:
     def do_clockwise_step(self, amount):
         for steps in range(amount):
             self.deque.rotate(1)  # Rotate a step forward in our frequency tuple
-            self.do_step_and_delay(self.deque[0])
+            self.do_step_and_delay(self.deque[0])  # Override bit encode with certain step
             print("Going forward...")
 
     # Function to do a step backward
@@ -47,7 +47,7 @@ class StepperMotor:
 
     # Function to execute the step and then sleep for the __delay.after_step time
     def do_step_and_delay(self, step):
-        number = 0
+        number = 0  # Number to iterate through the steps
         for pin in self.pins:
             self.pi.write(pin, step[number])
             number += 1
@@ -56,8 +56,8 @@ class StepperMotor:
     # Stop the motor and
     def disable_stepper_motor(self, pins):
         for pin in pins:
-            self.pi.write(pin, 0)
-        self.pi.stop()
+            self.pi.write(pin, 0)  # Set all pins to 0
+        self.pi.stop()  # Stop the pigpio daemon
         print("Motor is powered off and pins aren't in use by pigpio anymore.")
 
 

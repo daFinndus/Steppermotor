@@ -1,10 +1,10 @@
 import time
-import socket
+
 from socket import *
 from threading import Thread
 
 # Dictionary of help commands
-help_dict = {
+_help_dict = {
     "debug": "Print a debug message.",
     "help": "Display the help menu.",
     "start": "Start the pigpio daemon.",
@@ -18,39 +18,25 @@ help_dict = {
 
 
 class MyClient:
-    server_port = 50000  # Port for the server
-    bufsize = 1024  # Set maximum bufsize
-    host = input("Enter Server-IP Address: ").replace(" ", "")  # Set IP of host
-    name = input("Set name: ").capitalize().replace(" ", "")  # Set up a custom name
-
     def __init__(self):
+        self.__SERVER_PORT = 50000  # Port for the server
+        self.__BUFSIZE = 1024  # Set maximum bufsize
+
+        self.host = input("Enter Server-IP Address: ").replace(" ", "")  # Set IP of host
+        self.name = input("Set name: ").capitalize().replace(" ", "")  # Set up a custom name
 
         self.data_recv = None  # Storage for received messages
         self.data_send = None  # Storage for sent messages
 
         self.socket_connection = socket(AF_INET, SOCK_STREAM)  # Create IpV4-TCP/IP-socket
-
-        self.thread_recv = Thread(target=self.worker_recv)  # Setup thread for receiving messages
-        self.thread_send = Thread(target=self.worker_send)  # Setup thread for sending messages
-
-        self.socket_connection.connect((self.host, self.server_port))  # Connect to the server via IP and port
+        self.socket_connection.connect((self.host, self.__SERVER_PORT))  # Connect to the server via IP and port
 
         print(f"Connected to Server: '{self.host}'.")
 
         self.exit = False  # Initiate boolean to end it all
 
-        self.thread_recv.start()  # Start thread to receive messages
+        self.thread_send = Thread(target=self.worker_send)  # Setup thread for sending messages
         self.thread_send.start()  # Start thread to send messages
-
-    # Function to receive messages
-    def worker_recv(self):
-        while not self.exit:
-            try:
-                self.data_recv = self.socket_connection.recv(self.bufsize)
-                if self.data_recv:
-                    print(self.data_recv)
-            except Exception as e:  # Catch error and print
-                print(f"Error in receiving message: {e}")
 
     # Function to send messages
     def worker_send(self):
@@ -75,7 +61,7 @@ class MyClient:
         message = input("> ").lower()
         # Display the help menu
         if message == "help":
-            for help_entry, help_desc in help_dict.items():
+            for help_entry, help_desc in _help_dict.items():
                 print(f"{help_entry}: {help_desc}")
         elif message == "debug":
             print("Gonna debug right now...")
@@ -111,14 +97,12 @@ class MyClient:
         else:
             print("Your message isn't registered in our dictionary. Type 'help' for help.")
             self.prepare_message()
-
+        # Finally return the message
         return message
 
     # Function to stop the connection
     def stop_connection(self):
         self.exit = True  # Stop everything that depends on exit
-        self.thread_recv.join()  # Stop thread after function is executed completely
         self.thread_send.join()  # Stop thread after function is executed completely
-        self.socket_connection.shutdown(socket.SHUT_RDWR)  # Shutdown the socket
         self.socket_connection.close()  # Close socket
-        print("Executing stop_connection() is done.")  # Debug
+        print(f"Stopped connection for: {self.name}")  # Debug
