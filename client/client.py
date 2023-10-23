@@ -77,7 +77,7 @@ class MyClient:
             print("The pigpio daemon is stopping.")
         # Disable the steppermotor
         elif message == "disable":
-            message = f"disable steppins"
+            message = f"disable _steppins"
             print("The steppermotor will shutdown.")
         # Set the step delay in Hz
         elif message == "set":
