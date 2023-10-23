@@ -1,16 +1,16 @@
 from socket import *
-from threading import Thread
 from time import sleep
 
+import threading
 import pigpio
 
 import motor.stepper_motor as sp
 
 # GPIO pins of the stepper motor
-_steppins = [17, 27, 22, 18]
+_STEPPINS = [17, 27, 22, 18]
 
 # Step sequence for the stepper motor
-_fullstepsequence = (
+_FULL_STEP_SEQUENCE = (
     (1, 0, 1, 0),
     (0, 1, 1, 0),
     (0, 1, 0, 1),
@@ -25,8 +25,8 @@ class MyServer:
 
         self.name = input("Set name: ").replace(" ", "")  # Set up a custom name
 
-        self._pi_device = pigpio.pi()  # Initialize pi object
-        self._motor = sp.StepperMotor(self._pi_device, _steppins, _fullstepsequence)  # Initialize stepper motor object
+        self._pi = pigpio.pi()  # Initialize pi object
+        self._motor = sp.StepperMotor(self._pi, _STEPPINS, _FULL_STEP_SEQUENCE)  # Initialize stepper motor object
 
         self.data_recv = None  # Storage for received messages
         self.data_send = None  # Storage for sent messages
@@ -46,8 +46,10 @@ class MyServer:
 
         self.exit = False  # Initiate boolean to end it all
 
-        self.thread_recv = Thread(target=self.worker_recv)  # Setup thread for receiving messages
+        self.thread_recv = threading.Thread(target=self.worker_recv)  # Setup thread for receiving messages
         self.thread_recv.start()  # Start thread to receive messages
+
+        self.lock = threading.Lock()
 
     # Function to receive messages
     def worker_recv(self):
@@ -57,8 +59,9 @@ class MyServer:
             except Exception as e:  # Catch error and print
                 print(f"Error in receiving message: {e}")
             # Receive data from client with certain bufsize
-            if self.data_recv:  # If server receives data from the client
-                self.function_dispatcher(self.data_recv.decode())
+            with self.lock:  # Aquire lock so nothing can execute while the worker is running
+                if self.data_recv:  # If server receives data from the client
+                    self.function_dispatcher(self.data_recv.decode())
 
     # Function for dispatching our messages
     def function_dispatcher(self, command):
@@ -69,6 +72,7 @@ class MyServer:
         functions = {
             "start": sp.start_pigpiod,
             "stop": sp.stop_pigpiod,
+            "enable": self._motor.enable_stepper_motor,
             "disable": self._motor.disable_stepper_motor,
             "set": self._motor.set_stepper_delay,
             "cw-step": self._motor.do_clockwise_step,
@@ -94,14 +98,14 @@ class MyServer:
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
 
-    # Function to shutdown the application
+    # Function to shut down the application
     def shutdown(self):
         try:
-            self._motor.disable_stepper_motor(_steppins)
+            self._motor.disable_stepper_motor()
             print("Disabled stepper motor.")
             sp.stop_pigpiod()
             print("Stopped pigpio daemon.")
-            self._pi_device.stop()
+            self._pi.stop()
             print("Stopped pi device.")
         except KeyboardInterrupt:
             pass

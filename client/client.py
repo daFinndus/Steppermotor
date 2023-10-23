@@ -9,6 +9,7 @@ _help_dict = {
     "help": "Display the help menu.",
     "start": "Start the pigpio daemon.",
     "stop": "Stop the pigpio daemon.",
+    "enable": "Enable the steppermotor.",
     "disable": "Disable the steppermotor.",
     "set": "Set the step delay in Hz.",
     "cw-step": "Step clockwise.",
@@ -77,7 +78,6 @@ class MyClient:
             print("The pigpio daemon is stopping.")
         # Disable the steppermotor
         elif message == "disable":
-            message = f"disable _steppins"
             print("The steppermotor will shutdown.")
         # Set the step delay in Hz
         elif message == "set":

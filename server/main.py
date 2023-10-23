@@ -8,7 +8,6 @@ def start_server():
     server = MyServer()  # Initialize our server
 
     # Wait until the server is stopped
-
     while not server.exit:
         pass
     print("The server has stopped.")

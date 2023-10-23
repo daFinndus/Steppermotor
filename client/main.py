@@ -5,6 +5,7 @@ from client import MyClient
 def start_client():
     client = MyClient()
 
+    # Wait until the client is stopped
     while not client.exit:
         pass
     print("The client is stopped.")
