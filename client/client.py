@@ -13,6 +13,7 @@ _help_dict = {
     "cw-step": "Step clockwise.",
     "ccw-step": "Step counterclockwise.",
     "exit": "Exit the socket connection.",
+    "shutdown": "Shutdown the application."
 }
 
 
@@ -93,6 +94,8 @@ class MyClient:
             self.stop_connection()
             time.sleep(1)
             print("\nGonna exit the socket connection real quick...\n")
+        elif message == "shutdown":
+            self.shutdown()
         else:
             print("Your message isn't registered in our dictionary. Type 'help' for help.")
             self.prepare_message()
@@ -105,3 +108,9 @@ class MyClient:
         self.thread_send.join()  # Stop thread after function is executed completely
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
+
+    def shutdown(self):
+        self.stop_connection()
+        print("Shutting down...")
+        time.sleep(3)
+        exit()
