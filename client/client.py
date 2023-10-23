@@ -1,3 +1,4 @@
+import threading
 import time
 
 from socket import *
@@ -95,7 +96,8 @@ class MyClient:
             time.sleep(1)
             print("\nGonna exit the socket connection real quick...\n")
         elif message == "shutdown":
-            self.shutdown()
+            thread_shutdown = threading.Thread(target=self.shutdown)
+            thread_shutdown.start()
         else:
             print("Your message isn't registered in our dictionary. Type 'help' for help.")
             self.prepare_message()
@@ -109,6 +111,7 @@ class MyClient:
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
 
+    # Function to shutdown the application
     def shutdown(self):
         self.stop_connection()
         print("Shutting down...")
