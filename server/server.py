@@ -1,13 +1,14 @@
-import pigpio
-import motor.steppermotor as sp
-
 from socket import *
 from threading import Thread
 
-# GPIO pins of the steppermotor
+import pigpio
+
+import motor.stepper_motor as sp
+
+# GPIO pins of the stepper motor
 _steppins = [17, 27, 22, 18]
 
-# Step sequence for the steppermotor
+# Step sequence for the stepper motor
 _fullstepsequence = (
     (1, 0, 1, 0),
     (0, 1, 1, 0),
@@ -24,7 +25,7 @@ class MyServer:
         self.name = input("Set name: ").replace(" ", "")  # Set up a custom name
 
         self._pi_device = pigpio.pi()  # Initialize pi object
-        self._motor = sp.StepperMotor(self._pi_device, _steppins, _fullstepsequence)  # Initialize steppermotor object
+        self._motor = sp.StepperMotor(self._pi_device, _steppins, _fullstepsequence)  # Initialize stepper motor object
 
         self.data_recv = None  # Storage for received messages
         self.data_send = None  # Storage for sent messages
@@ -71,6 +72,7 @@ class MyServer:
             "set": self._motor.set_stepper_delay,
             "cw-step": self._motor.do_clockwise_step,
             "ccw-step": self._motor.do_counterclockwise_step,
+            "exit": self.stop_connection,
         }
 
         # Check if the received message is a registered function
@@ -90,3 +92,17 @@ class MyServer:
         self.thread_recv.join()  # Stop thread after function is executed completely
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
+
+    # Completely shutdown the application
+    def shutdown(self):
+        self._motor.disable_stepper_motor(_steppins)
+        print("Disabled stepper motor.")
+        sp.stop_pigpiod()
+        print("Stopped pigpio daemon.")
+        self._pi_device.stop()
+        print("Stopped pi device.")
+        self.stop_connection()
+        print("Stopped connection.")
+        print("Shutting down...")
+        sleep(3)
+        exit()

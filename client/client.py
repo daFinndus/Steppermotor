@@ -5,7 +5,6 @@ from threading import Thread
 
 # Dictionary of help commands
 _help_dict = {
-    "debug": "Print a debug message.",
     "help": "Display the help menu.",
     "start": "Start the pigpio daemon.",
     "stop": "Stop the pigpio daemon.",
