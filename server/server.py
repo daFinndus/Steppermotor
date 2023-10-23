@@ -69,7 +69,6 @@ class MyServer:
         functions = {
             "start": sp.start_pigpiod,
             "stop": sp.stop_pigpiod,
-            "disable": self._motor.disable_stepper_motor,
             "set": self._motor.set_stepper_delay,
             "cw-step": self._motor.do_clockwise_step,
             "ccw-step": self._motor.do_counterclockwise_step,
