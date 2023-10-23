@@ -19,8 +19,6 @@ _help_dict = {
 
 
 class MyClient:
-    self.lock = threading.Lock()
-
     def __init__(self):
         self.__SERVER_PORT = 50000  # Port for the server
         self.__BUFSIZE = 1024  # Set maximum bufsize
@@ -40,6 +38,8 @@ class MyClient:
 
         self.thread_send = Thread(target=self.worker_send)  # Setup thread for sending messages
         self.thread_send.start()  # Start thread to send messages
+
+        self.lock = threading.Lock()  # Lock for the shutdown function
 
     # Function to send messages
     def worker_send(self):
