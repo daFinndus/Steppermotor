@@ -73,6 +73,7 @@ class MyServer:
             "cw-step": self._motor.do_clockwise_step,
             "ccw-step": self._motor.do_counterclockwise_step,
             "exit": self.stop_connection,
+            "shutdown": self.shutdown
         }
 
         # Check if the received message is a registered function
