@@ -1,5 +1,6 @@
 from socket import *
 from threading import Thread
+from time import sleep
 
 import pigpio
 
@@ -90,20 +91,21 @@ class MyServer:
     # Function to stop the connection
     def stop_connection(self):
         self.exit = True  # Stop everything that depends on exit
-        self.thread_recv.join()  # Stop thread after function is executed completely
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
 
-    # Completely shutdown the application
+    # Function to shutdown the application
     def shutdown(self):
-        self._motor.disable_stepper_motor(_steppins)
-        print("Disabled stepper motor.")
-        sp.stop_pigpiod()
-        print("Stopped pigpio daemon.")
-        self._pi_device.stop()
-        print("Stopped pi device.")
-        self.stop_connection()
-        print("Stopped connection.")
-        print("Shutting down...")
-        sleep(3)
-        exit()
+        try:
+            self._motor.disable_stepper_motor(_steppins)
+            print("Disabled stepper motor.")
+            sp.stop_pigpiod()
+            print("Stopped pigpio daemon.")
+            self._pi_device.stop()
+            print("Stopped pi device.")
+        except KeyboardInterrupt:
+            pass
+        finally:
+            print("Shutting down...")
+            sleep(3)
+            exit()
