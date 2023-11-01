@@ -33,13 +33,13 @@ class MyServer:
 
         self.socket_connection = socket(AF_INET, SOCK_STREAM)  # Create IpV4-TCP/IP-socket
         self.socket_connection.bind(('', self.__ECHO_PORT))  # Bind IP to socket
-        self.socket_connection.listen(1)  # Listen for clients -> execute following code after connection
+        self.socket_connection.listen(1)  # Listen for clients -> execute the following code after connection
 
         print("Server is running.")
         print(f"Server-Device: {gethostname()}")
         print(f"Server-IP Address: {gethostbyname(gethostname())}")
 
-        # Wait until client accepted the connection with the server
+        # Wait until the client accepted the connection with the server
         # The variable self.conn stores every available information about the client
         self.conn, (self.remotehost, self.remoteport) = self.socket_connection.accept()
         print(f"Connected with '{self.remotehost}:{self.remoteport}'.")  # Print data about client
@@ -55,10 +55,10 @@ class MyServer:
     def worker_recv(self):
         while not self.exit:  # While self.exit is false
             try:
-                self.data_recv = self.conn.recv(self.__BUFSIZE)  # Receive data from client with certain bufsize
+                self.data_recv = self.conn.recv(self.__BUFSIZE)  # Receive data from the client with certain bufsize
             except Exception as e:  # Catch error and print
                 print(f"Error in receiving message: {e}")
-            # Receive data from client with certain bufsize
+            # Receive data from the client with certain bufsize
             with self.lock:  # Aquire lock so nothing can execute while the worker is running
                 if self.data_recv:  # If server receives data from the client
                     self.function_dispatcher(self.data_recv.decode())

@@ -46,8 +46,8 @@ class MyClient:
     def worker_send(self):
         while not self.exit:
             try:
-                # Setup sendable data for the server which displays information about the client cpu frequency
-                self.data_send = self.prepare_message()  # Send custom text message to server
+                # Setup data for the server which displays information about the client cpu frequency
+                self.data_send = self.prepare_message()  # Send a custom text message to server
 
                 # Format the data to a nice string
                 self.data_send = f"{self.data_send}"
@@ -103,7 +103,7 @@ class MyClient:
         else:
             print("Your message isn't registered in our dictionary. Type 'help' for help.")
             self.prepare_message()
-        # Finally return the message
+        # Finally, return the message
         return message
 
     # Function to stop the connection
@@ -113,7 +113,7 @@ class MyClient:
         self.socket_connection.close()  # Close socket
         print(f"Stopped connection for: {self.name}")  # Debug
 
-    # Function to shutdown the application
+    # Function to shut down the application
     def shutdown(self):
         with self.lock:
             self.stop_connection()

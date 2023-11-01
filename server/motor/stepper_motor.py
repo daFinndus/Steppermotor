@@ -4,13 +4,6 @@ from os import system
 
 import pigpio
 
-FULL_STEP_SEQUENCE = (
-    (1, 0, 1, 0),
-    (0, 1, 1, 0),
-    (0, 1, 0, 1),
-    (1, 0, 0, 1),
-)
-
 
 class StepperMotor:
     def __init__(self, pi, pins, sequence):
@@ -18,7 +11,7 @@ class StepperMotor:
         if not isinstance(pi, pigpio.pi):
             raise TypeError("The daemon isn't initialized yet.")
 
-        # Set pins in list to output
+        # Set pins in the list to output
         for pin in pins:
             pi.set_mode(pin, pigpio.OUTPUT)
 
@@ -42,20 +35,22 @@ class StepperMotor:
     def do_clockwise_step(self, amount):
         for _ in range(amount):
             self.deque.rotate(1)  # Rotate a step forward in our frequency tuple
-            self.do_step_and_delay(self.deque[0])  # Override bit encode with certain step
+            self.do_step_and_delay(self.deque[0])  # Override bit encode with a certain step
             print("Going forward...")
 
     # Function to do a step backward
     def do_counterclockwise_step(self, amount):
         for _ in range(amount):
             self.deque.rotate(-1)  # Rotate a step backwards in our frequency tuple
-            self.do_step_and_delay(self.deque[0])  # Override bit encode with certain step
+            self.do_step_and_delay(self.deque[0])  # Override bit encode with a certain step
             print("Going backward...")
 
     # Function to execute the step and then sleep for the __delay.after_step time
     def do_step_and_delay(self, step):
-        for pin, number in zip(self.pins, step):
+        number = 0  # Number to iterate through the steps
+        for pin in self.pins:
             self.pi.write(pin, step[number])
+            number += 1
         time.sleep(self.__delay_after_step)
 
     # Start the motor and enable the pins
