@@ -7,25 +7,23 @@ from threading import Thread
 # Dictionary of help commands
 _help_dict = {
     "help": "Display the help menu.",
-    "start": "Start the pigpio daemon.",
-    "stop": "Stop the pigpio daemon.",
-    "enable": "Enable the steppermotor.",
-    "disable": "Disable the steppermotor.",
-    "set": "Set the step delay in Hz.",
-    "cw-step": "Step clockwise.",
-    "ccw-step": "Step counterclockwise.",
-    "exit": "Exit the socket connection.",
-    "shutdown": "Shutdown the application."
+    "set": "Set the delay after each step in Hz.",
+    "cw-step": "Do a step clockwise.",
+    "ccw-step": "Do a step counterclockwise - Doesn't work.",
+    "clean": "Clean up all pins and stop the application.",
+    "disconnect": "Disconnect from the server.",
+    "shutdown": "Shutdown the application, client and server."
 }
 
 
+# This only works with the gpio version of the stepper_motor.py
 class MyClient:
     def __init__(self):
         self.__SERVER_PORT = 50000  # Port for the server
         self.__BUFSIZE = 1024  # Set maximum bufsize
 
         self.host = input("Enter Server-IP Address: ").replace(" ", "")  # Set IP of host
-        self.name = input("Set name: ").capitalize().replace(" ", "")  # Set up a custom name
+        self.name = input("Set name: ").replace(" ", "")  # Set up a custom name
 
         self.data_recv = None  # Storage for received messages
         self.data_send = None  # Storage for sent messages
@@ -62,61 +60,55 @@ class MyClient:
 
     # Function to formulate a registered message
     def prepare_message(self):
-        message = input("> ").lower()
-        # Display the help menu
-        if message == "help":
-            for help_entry, help_desc in _help_dict.items():
-                print(f"{help_entry}: {help_desc}")
-        elif message == "debug":
-            print("Gonna debug right now...")
-            time.sleep(1)
-        # Start the pigpio daemon
-        elif message == "start":
-            print("The pigpio daemon is starting.")
-        # Stop the pigpio daemon
-        elif message == "stop":
-            print("The pigpio daemon is stopping.")
-        # Disable the steppermotor
-        elif message == "disable":
-            print("The steppermotor will shutdown.")
-        # Set the step delay in Hz
-        elif message == "set":
-            step_freq = input("Choose the frequency value > ")
-            message = f"set {step_freq}"
-            print(f"Setting up delay_after_step to {step_freq} Hz.")
-        # Step clockwise
-        elif message == "cw-step":
-            step_amount = input("Choose how many steps the motor should make > ")
-            message = f"cw-step {step_amount}"
-        # Step counterclockwise
-        elif message == "ccw-step":
-            step_amount = input("Choose how many steps the motor should make > ")
-            message = f"ccw-step {step_amount}"
-        # Exit the socket connection
-        elif message == "exit":
-            self.stop_connection()
-            time.sleep(1)
-            print("\nGonna exit the socket connection real quick...\n")
-        elif message == "shutdown":
-            thread_shutdown = threading.Thread(target=self.shutdown)
-            thread_shutdown.start()
-        else:
-            print("Your message isn't registered in our dictionary. Type 'help' for help.")
-            self.prepare_message()
-        # Finally, return the message
-        return message
+        while not self.exit:
+            message = input("> ").lower()
+            # Display the help menu
+            if message == "help":
+                for help_entry, help_desc in _help_dict.items():
+                    print(f"{help_entry}: {help_desc}")
+                break
+            # Set the step delay in Hz
+            elif message == "set":
+                step_freq = input("Choose the frequency value > ")
+                message = f"set {step_freq}"
+                print(f"Setting up delay_after_step to {step_freq} Hz.")
+            # Step clockwise
+            elif message == "cw-step":
+                step_amount = input("Choose how many steps the motor should make > ")
+                message = f"cw-step {step_amount}"
+            # Step counterclockwise
+            elif message == "ccw-step":
+                step_amount = input("Choose how many steps the motor should make > ")
+                message = f"ccw-step {step_amount}"
+            # Exit the socket connection
+            elif message == "disconnect":
+                threading.Thread(target=self.stop_connection).start()
+                message = f"disconnect self.reset_connection"
+            elif message == "shutdown":
+                threading.Thread(target=self.shutdown).start()
+                message = f"shutdown self.shutdown"
+            else:
+                print("Your message isn't registered in our dictionary. Type 'help' for help.")
+                self.prepare_message()
+                continue
+            # Finally, return the message
+            return message
 
-    # Function to stop the connection
+    # Function to stop the connection - Doesn't close the application
     def stop_connection(self):
-        self.exit = True  # Stop everything that depends on exit
-        self.thread_send.join()  # Stop thread after function is executed completely
+        print("Going to disconnect the connection...")
+        time.sleep(1)
         self.socket_connection.close()  # Close socket
-        print(f"Stopped connection for: {self.name}")  # Debug
+        print(f"Stopped connection for: {self.name}")
+        time.sleep(1)
+        print("Closing the application...")
+        time.sleep(1)
+        quit()
 
     # Function to shut down the application
     def shutdown(self):
         with self.lock:
-            self.stop_connection()
             print("Shutting down...")
-            time.sleep(3)
+            time.sleep(1)
+            self.stop_connection()
             exit()

@@ -1,4 +1,4 @@
-import motor.stepper_motor as sp
+import motor.stepper_motor_pigpio as sp
 from server import MyServer
 
 
