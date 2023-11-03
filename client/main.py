@@ -8,7 +8,6 @@ def start_client():
     # Wait until the client is stopped
     while not client.exit:
         pass
-    print("The client is stopped.")
 
 
 if __name__ == "__main__":
