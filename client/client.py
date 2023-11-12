@@ -10,6 +10,8 @@ _help_dict = {
     "set": "Set the delay after each step in Hz.",
     "cw-step": "Do a step clockwise.",
     "ccw-step": "Do a step counterclockwise - Doesn't work.",
+    "cw-degrees": "Move the motor clockwise by degrees.",
+    "ccw-degrees": "Move the motor counterclockwise by degrees.",
     "clean": "Clean up all pins and stop the application.",
     "disconnect": "Disconnect from the server.",
     "shutdown": "Shutdown the application, client and server."
@@ -82,6 +84,14 @@ class MyClient:
             elif message == "ccw-step":
                 step_amount = input("Choose how many steps the motor should make > ")
                 message = f"ccw-step {step_amount}"
+            # Move clockwise by degrees
+            elif message == "cw-degrees":
+                degrees = input("Choose how many degrees the motor should make > ")
+                message = f"cw-degrees {degrees}"
+            # Move counterclockwise by degrees
+            elif message == "ccw-degrees":
+                degrees = input("Choose how many degrees the motor should make > ")
+                message = f"ccw-degrees {degrees}"
             # Exit the socket connection
             elif message == "disconnect":
                 threading.Thread(target=self.stop_connection).start()

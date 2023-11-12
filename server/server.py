@@ -24,7 +24,7 @@ class MyServer:
 
         self.name = f"{gethostname()}:{self.__ECHO_PORT}"
 
-        self._motor = sp.StepperMotor(_STEPPINS, _STEP_SEQUENCE)  # Initialize stepper motor object
+        self._motor = sp.StepperMotor()  # Initialize stepper motor object
 
         self.data_recv = None  # Storage for received messages
         self.data_send = None  # Storage for sent messages
@@ -75,6 +75,8 @@ class MyServer:
             "set": self._motor.set_stepper_delay,
             "cw-step": self._motor.do_clockwise_step,
             "ccw-step": self._motor.do_counterclockwise_step,
+            "cw-degrees": self._motor.do_clockwise_degrees,
+            "ccw-degrees": self._motor.do_counterclockwise_degrees,
             "clean": self._motor.clean_up_gpio,
             "disconnect": self.reset_connection,
             "shutdown": self.shutdown,
