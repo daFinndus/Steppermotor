@@ -66,7 +66,6 @@ class MyServer:
             "ccw-step": self._motor.do_counterclockwise_step,
             "cw-degrees": self._motor.do_clockwise_degrees,
             "ccw-degrees": self._motor.do_counterclockwise_degrees,
-            "clean": self._motor.clean_up_gpio,
             "disconnect": self.reset_connection,
             "shutdown": self.shutdown,
         }
