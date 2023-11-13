@@ -1,19 +1,8 @@
+import threading
+import time
 from socket import *
 
-import time
-import threading
 import motor.stepper_motor as sp
-
-# GPIO pins of the stepper motor
-_STEPPINS = [17, 27, 22, 18]
-
-# Step sequence for the stepper motor
-_STEP_SEQUENCE = (
-    (1, 0, 1, 0),
-    (0, 1, 1, 0),
-    (0, 1, 0, 1),
-    (1, 0, 0, 1),
-)
 
 
 # This only works with the gpio version of the stepper_motor.py

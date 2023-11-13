@@ -12,7 +12,6 @@ _help_dict = {
     "ccw-step": "Do a step counterclockwise - Doesn't work.",
     "cw-degrees": "Move the motor clockwise by degrees.",
     "ccw-degrees": "Move the motor counterclockwise by degrees.",
-    "clean": "Clean up all pins and stop the application.",
     "disconnect": "Disconnect from the server.",
     "shutdown": "Shutdown the application, client and server."
 }
