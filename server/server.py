@@ -51,7 +51,7 @@ class MyServer:
             # Receive data from the client with certain bufsize
             with self.lock:  # Aquire lock so nothing can execute while the worker is running
                 if self.data_recv:  # If server receives data from the client
-                    self.function_dispatcher(self.data_recv.decode())
+                    print(f"Received message: {self.decode_json(self.data_recv)}")
         print("Stopped thread because self.quit is true.")
 
     # Function for dispatching our messages
@@ -84,6 +84,10 @@ class MyServer:
                 print("Too many number of arguments.")
         else:
             print("Couldn't find function in dictionary.")
+
+    # Function to decode json
+    def decode_json(self, message):
+        return json.loads(message)
 
     # Reset the current connection and listen for clients again - Doesn't listen for clients again
     def reset_connection(self):

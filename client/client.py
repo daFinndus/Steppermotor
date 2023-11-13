@@ -1,6 +1,6 @@
+import json
 import threading
 import time
-
 from socket import *
 from threading import Thread
 
@@ -47,13 +47,13 @@ class MyClient:
         while not self.quit:
             try:
                 # Setup data for the server which displays information about the client cpu frequency
-                self.data_send = self.prepare_message()  # Send a custom text message to server
+                self.data_send = self.encode_json()  # Send a custom text message to server
 
                 # Format the data to a nice string
                 self.data_send = f"{self.data_send}"
 
                 # Send the server the data_send string
-                self.socket_connection.send(self.data_send.encode())
+                self.socket_connection.send(self.encode_json())
 
                 # Sleep for a second
                 time.sleep(1)
@@ -101,6 +101,11 @@ class MyClient:
                 break
             # Finally, return the message
             return message
+
+    # Function to turn a message into json
+    def encode_json(self):
+        message = input("> ").lower()
+        return json.dumps(message)
 
     # Function to stop the connection - Doesn't close the application
     def stop_connection(self):
