@@ -1,3 +1,5 @@
+import json
+import pickle
 import threading
 import time
 from socket import *
@@ -54,13 +56,11 @@ class MyServer:
                     print(f"Received message: {self.decode_json(self.data_recv)}")
         print("Stopped thread because self.quit is true.")
 
-    # Function for dispatching our messages
-    def function_dispatcher(self, command):
-        print(f"Entered command: '{command}'")
-        command_parts = command.split()  # Split our commands based on whitespace
-
+    # Function to decode json
+    def decode_json(self, message):
         # Dictionary with all available functions
         functions = {
+            "help": self.return_help,
             "set": self._motor.set_stepper_delay,
             "cw-step": self._motor.do_clockwise_step,
             "ccw-step": self._motor.do_counterclockwise_step,
@@ -70,24 +70,26 @@ class MyServer:
             "shutdown": self.shutdown,
         }
 
-        # Check if the received message is a registered function
-        if command_parts[0] == "disconnect":
-            threading.Thread(target=self.reset_connection).start()
-        elif command_parts[0] == "shutdown":
-            threading.Thread(target=self.shutdown).start()
-        elif command_parts[0] in functions:
-            if len(command_parts) == 1:
-                functions[command_parts[0]]()
-            elif len(command_parts) == 2:
-                functions[command_parts[0]](int(command_parts[1]))
-            else:
-                print("Too many number of arguments.")
-        else:
-            print("Couldn't find function in dictionary.")
+        json_string = pickle.loads(message)
+        json_object = json.loads(json_string)
 
-    # Function to decode json
-    def decode_json(self, message):
-        return json.loads(message)
+        # Iterate through the json object
+        for function, amount in json_object.items():
+            # Check if the received message is a registered function
+            if function == "disconnect":
+                threading.Thread(target=self.reset_connection).start()
+            elif function == "shutdown":
+                threading.Thread(target=self.shutdown).start()
+            elif function in functions:
+                functions[function](int(amount))
+            else:
+                print("Couldn't find function in dictionary.")
+
+        return json_object
+
+    # Function to print help statement
+    def return_help(self):
+        print("The client has requested the help menu.")
 
     # Reset the current connection and listen for clients again - Doesn't listen for clients again
     def reset_connection(self):

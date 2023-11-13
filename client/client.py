@@ -1,4 +1,5 @@
 import json
+import pickle
 import threading
 import time
 from socket import *
@@ -37,6 +38,8 @@ class MyClient:
         self.exit = False  # Initiate boolean to end it all
         self.quit = False  # Initiate boolean to stop threads
 
+        self.editJSON = False
+
         self.thread_send = Thread(target=self.worker_send)  # Setup thread for sending messages
         self.thread_send.start()  # Start thread to send messages
 
@@ -46,20 +49,55 @@ class MyClient:
     def worker_send(self):
         while not self.quit:
             try:
+                print("Create your json-object. Type 'send' to send it.")
+                self.editJSON = False
                 # Setup data for the server which displays information about the client cpu frequency
                 self.data_send = self.encode_json()  # Send a custom text message to server
 
-                # Format the data to a nice string
-                self.data_send = f"{self.data_send}"
+                # Turn into bytes
+                self.data_send = self.encode_pickle(self.data_send)
 
                 # Send the server the data_send string
-                self.socket_connection.send(self.encode_json())
+                self.socket_connection.send(self.data_send)
 
                 # Sleep for a second
                 time.sleep(1)
             except Exception as e:  # Catch error and print
                 print(f"Error occurred in sending message: {e}")
         print("Stopped thread because self.quit is true.")
+
+    # Function to turn a message into json
+    def encode_json(self):
+        json_object = {}
+        while not self.editJSON:
+            message = input("> ").lower()
+            if message == "help":
+                for help_entry, help_desc in _help_dict.items():
+                    print(f"{help_entry}: {help_desc}")
+            elif message == "send":
+                print("JSON-Object will be sent to server.")
+                self.editJSON = True
+                break
+            elif message == "disconnect":
+                print("Going to send the object and then disconnect.")
+                time.sleep(3)
+                threading.Thread(self.stop_connection()).start()
+                break
+            elif message == "shutdown":
+                print("Going to send the object and then shutdown.")
+                time.sleep(3)
+                threading.Thread(self.shutdown()).start()
+                break
+            else:
+                function, amount = message.split(" ")
+            json_object[function] = amount
+        json_string = json.dumps(json_object)
+        return json_string
+
+    # Function to turn a message into pickle
+    def encode_pickle(self, json_string):
+        byte_message = pickle.dumps(json_string)
+        return byte_message
 
     # Function to formulate a registered message
     def prepare_message(self):
@@ -101,11 +139,6 @@ class MyClient:
                 break
             # Finally, return the message
             return message
-
-    # Function to turn a message into json
-    def encode_json(self):
-        message = input("> ").lower()
-        return json.dumps(message)
 
     # Function to stop the connection - Doesn't close the application
     def stop_connection(self):
