@@ -8,11 +8,11 @@ from threading import Thread
 # Dictionary of help commands
 _help_dict = {
     "help": "Display the help menu.",
-    "set": "Set the delay after each step in Hz.",
-    "cw-step": "Do a step clockwise.",
-    "ccw-step": "Do a step counterclockwise - Doesn't work.",
-    "cw-degrees": "Move the motor clockwise by degrees.",
-    "ccw-degrees": "Move the motor counterclockwise by degrees.",
+    "set [number]": "Set the delay after each step in Hz.",
+    "cw-step [number]": "Move clockwise in steps.",
+    "ccw-step [number]": "Move counterclockwise in steps.",
+    "cw-degrees [number]": "Move the motor clockwise by degrees.",
+    "ccw-degrees [number]": "Move the motor counterclockwise by degrees.",
     "disconnect": "Disconnect from the server.",
     "shutdown": "Shutdown the application, client and server."
 }
@@ -90,55 +90,15 @@ class MyClient:
                 break
             else:
                 function, amount = message.split(" ")
-            json_object[function] = amount
+                json_object[function] = amount
         json_string = json.dumps(json_object)
         return json_string
 
     # Function to turn a message into pickle
-    def encode_pickle(self, json_string):
+    @staticmethod
+    def encode_pickle(json_string):
         byte_message = pickle.dumps(json_string)
         return byte_message
-
-    # Function to formulate a registered message
-    def prepare_message(self):
-        while not self.quit:
-            message = input("> ").lower()
-            # Display the help menu
-            if message == "help":
-                for help_entry, help_desc in _help_dict.items():
-                    print(f"{help_entry}: {help_desc}")
-                break
-            # Set the step delay in Hz
-            elif message == "set":
-                step_freq = input("Choose the frequency value > ")
-                message = f"set {step_freq}"
-                print(f"Setting up delay_after_step to {step_freq} Hz.")
-            # Step clockwise
-            elif message == "cw-step":
-                step_amount = input("Choose how many steps the motor should make > ")
-                message = f"cw-step {step_amount}"
-            # Step counterclockwise
-            elif message == "ccw-step":
-                step_amount = input("Choose how many steps the motor should make > ")
-                message = f"ccw-step {step_amount}"
-            # Move clockwise by degrees
-            elif message == "cw-degrees":
-                degrees = input("Choose how many degrees the motor should make > ")
-                message = f"cw-degrees {degrees}"
-            # Move counterclockwise by degrees
-            elif message == "ccw-degrees":
-                degrees = input("Choose how many degrees the motor should make > ")
-                message = f"ccw-degrees {degrees}"
-            # Exit the socket connection
-            elif message == "disconnect":
-                threading.Thread(target=self.stop_connection).start()
-            elif message == "shutdown":
-                threading.Thread(target=self.shutdown).start()
-            else:
-                print("Your message isn't registered in our dictionary. Type 'help' for help.")
-                break
-            # Finally, return the message
-            return message
 
     # Function to stop the connection - Doesn't close the application
     def stop_connection(self):

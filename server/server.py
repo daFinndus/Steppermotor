@@ -87,8 +87,9 @@ class MyServer:
 
         return json_object
 
-    # Function to print help statement
-    def return_help(self):
+    # Function to print the help statement
+    @staticmethod
+    def return_help():
         print("The client has requested the help menu.")
 
     # Reset the current connection and listen for clients again - Doesn't listen for clients again
