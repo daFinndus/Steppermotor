@@ -28,7 +28,7 @@ class StepperMotor:
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, 0)
 
-        self.__delay_after_step = 200  # Delay after each step in Hz
+        self.__delay_after_step = 1 / 400  # Delay after each step in Hz
         self.debug_mode = False  # Boolean for some debug messages
 
     # Function to set the delay after each step
